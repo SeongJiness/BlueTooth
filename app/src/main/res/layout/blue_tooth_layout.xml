@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -6,6 +7,34 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context=".BlueTooth">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/backButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginTop="14dp"
+            android:background="#00000000"
+            android:contentDescription="@string/app_name"
+            app:srcCompat="@drawable/back_iconxml"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginTop="14dp"
+            android:layout_marginStart="10dp"
+            android:text="블루투스"
+            android:textColor="#000000"
+            android:textSize="28sp" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/text_status"
@@ -23,6 +52,7 @@
         android:layout_width="200dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp"
         android:text="블루투스 ON" />
 
     <Button
@@ -40,10 +70,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
-        android:onClick="onClickButtonSearch"
-        />
-
-
+        android:onClick="onClickButtonSearch" />
 
     <ListView
         android:id="@+id/listview"
@@ -51,7 +78,5 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="16dp"
-        />
-
+        android:layout_marginBottom="16dp" />
 </LinearLayout>
