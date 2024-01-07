@@ -1,8 +1,5 @@
 package com.android.selfproject;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -15,6 +12,7 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -26,17 +24,14 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
 import java.util.UUID;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-
-public class BlueTooth extends AppCompatActivity {
-
+public class bluetooth extends AppCompatActivity {
     BluetoothAdapter btAdapter;
 
 
@@ -94,13 +89,12 @@ public class BlueTooth extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.blue_tooth_layout);
-
+        setContentView(R.layout.activity_bluetooth);
 
         ImageButton ImageButton = findViewById(R.id.backButton);
-       ImageButton.setOnClickListener(new View.OnClickListener() {
+        ImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
-          public void onClick(View v) {
+            public void onClick(View v) {
                 Intent intent = new Intent(); // 인텐트 객체 생성하고
                 intent.putExtra("name", "suzin"); // 인텐트 객체에 데이터 넣기
                 setResult(RESULT_OK, intent); // 응답 보내기
@@ -166,31 +160,15 @@ public class BlueTooth extends AppCompatActivity {
 
         listView.setOnItemClickListener(new myOnItemClickListener());
 
-
-
-        // 시리얼 통신으로 받은 JSON 데이터를 가정하여 아래와 같이 처리합니다.
-        String jsonData = ""; // 시리얼 통신으로 받은 JSON 데이터를 저장
-        try {
-            JSONObject jsonObject = new JSONObject(jsonData);
-            int sensorValue = jsonObject.getInt("sensorValue");
-
-            // 센서 값 사용 예시
-            Log.d(TAG, "Received sensor value: " + sensorValue);
-            // 여기서부터 센서 값을 활용하여 필요한 작업을 수행할 수 있습니다.
-        } catch (JSONException e) {
-            Log.e(TAG, "Error parsing JSON data: " + e.getMessage());
-        }
     }
 
     void bluetoothOn() {
-        if(btAdapter == null) {
+        if (btAdapter == null) {
             Toast.makeText(getApplicationContext(), "블루투스를 지원하지 않는 기기입니다.", Toast.LENGTH_LONG).show();
-        }
-        else {
+        } else {
             if (btAdapter.isEnabled()) {
                 Toast.makeText(getApplicationContext(), "블루투스가 이미 활성화 되어 있습니다.", Toast.LENGTH_LONG).show();
-            }
-            else {
+            } else {
                 Toast.makeText(getApplicationContext(), "블루투스가 활성화 되어 있지 않습니다.", Toast.LENGTH_LONG).show();
                 Intent intentBluetoothEnable = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(intentBluetoothEnable, REQUEST_ENABLE_BT);
@@ -221,7 +199,6 @@ public class BlueTooth extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -229,6 +206,7 @@ public class BlueTooth extends AppCompatActivity {
         // Unregister the ACTION_FOUND receiver.
         unregisterReceiver(discoveryReceiver);
     }
+
     // 디바이스 검색 버튼 클릭 핸들러
     public void onClickButtonSearch(View view) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -279,6 +257,7 @@ public class BlueTooth extends AppCompatActivity {
             startDeviceDiscovery();
         }
     }
+
     private void startDeviceDiscovery() {
         // 권한이 허용된 경우에만 스캔 시작
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
@@ -321,17 +300,14 @@ public class BlueTooth extends AppCompatActivity {
 
             if (flag) {
                 textStatus.setText("connected to " + name);
-                connectedThread = new ConnectedThread(btSocket);
+                Handler handler = new Handler(Looper.getMainLooper());  // 이 부분에 원하는 Looper를 사용하세요.
+                connectedThread = new ConnectedThread(btSocket, bluetooth.this, handler);
                 receiveDataFromArduino(); // 연결 수립 전에 데이터 수신 시작
-                connectedThread.startReceiving(); // 추가: 연결이 수립되었을 때 데이터 수신을 시작함
             }
         }
     }
-
     private void receiveDataFromArduino() {
-        Log.d(TAG, "receiveDataFromArduino method called");
         if (connectedThread != null) {
-            // If the connection is already established, start receiving data
             connectedThread.startReceiving();
         } else {
             // If the connection is not established, create a new connection and start receiving data
@@ -342,8 +318,8 @@ public class BlueTooth extends AppCompatActivity {
             if (deviceAddressArray.size() > 0) {
                 textStatus.setText("try...");
 
-                final String name = btArrayAdapter.getItem(0); // get name of the first device in the list (you can modify this as needed)
-                final String address = deviceAddressArray.get(0); // get address of the first device in the list (you can modify this as needed)
+                final String name = btArrayAdapter.getItem(0);
+                final String address = deviceAddressArray.get(0);
                 boolean flag = true;
 
                 BluetoothDevice device = btAdapter.getRemoteDevice(address);
@@ -360,7 +336,8 @@ public class BlueTooth extends AppCompatActivity {
 
                 if (flag) {
                     textStatus.setText("connected to " + name);
-                    connectedThread = new ConnectedThread(btSocket);
+                    Handler handler = new Handler(Looper.getMainLooper());  // 이 부분에 원하는 Looper를 사용하세요.
+                    connectedThread = new ConnectedThread(btSocket, bluetooth.this, handler);
                     connectedThread.startReceiving();
                 }
             } else {
@@ -368,6 +345,4 @@ public class BlueTooth extends AppCompatActivity {
             }
         }
     }
-
-
 }
